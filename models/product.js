@@ -9,6 +9,10 @@ module.exports.Product = model(
       description: String,
       price: Number,
       quantity: Number,
+      sold: {
+        type: Number,
+        default: 0,
+      },
       category: {
         type: Schema.Types.ObjectId,
         ref: "Category",
