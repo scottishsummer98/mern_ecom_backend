@@ -1,6 +1,7 @@
 const { CartItem } = require("../models/cartItem");
 const { Profile } = require("../models/profile");
 const { Order } = require("../models/order");
+const { Product } = require("../models/product");
 const { Payment } = require("../models/payment");
 const PaymentSession = require("ssl-commerz-node").PaymentSession;
 
@@ -85,6 +86,16 @@ module.exports.initPayment = async (req, res) => {
   if (response.status === "SUCCESS") {
     order.sessionKey = response["sessionkey"];
     await order.save();
+    // for (const item of cartItems) {
+    //   const productId = item.product;
+    //   const count = item.count;
+    //   const product = await Product.findById(productId);
+    //   if (product) {
+    //     product.sold += count;
+    //     product.quantity -= count;
+    //     await product.save();
+    //   }
+    // }
   }
   return res.status(200).send(response);
 };
@@ -96,6 +107,16 @@ module.exports.ipn = async (req, res) => {
       { transaction_id: tran_id },
       { status: "Complete" }
     );
+    for (const item of order.cartItems) {
+      const productId = item.product;
+      const count = item.count;
+      const product = await Product.findById(productId);
+      if (product) {
+        product.sold += count;
+        product.quantity -= count;
+        await product.save();
+      }
+    }
     await CartItem.deleteMany(order.cartItems);
   } else {
     await Order.deleteOne({ transaction_id: tran_id });
