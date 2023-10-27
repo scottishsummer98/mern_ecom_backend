@@ -17,7 +17,7 @@ module.exports.initPayment = async (req, res) => {
   const totalItem = cartItems
     .map((item) => item.count)
     .reduce((a, b) => a + b, 0);
-  const transactionId =
+  let transactionId =
     "_" + Math.random().toString(36).substring(2, 9) + new Date().getTime();
   const payment = new PaymentSession(
     true,
