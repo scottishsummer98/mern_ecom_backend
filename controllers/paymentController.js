@@ -107,6 +107,7 @@ module.exports.ipn = async (req, res) => {
       { transaction_id: tran_id },
       { status: "Complete" }
     );
+    cartItems = order.cartItems;
     // for (const item of order.cartItems) {
     //   const productId = item.product;
     //   const count = item.count;
@@ -117,12 +118,12 @@ module.exports.ipn = async (req, res) => {
     //     await product.save();
     //   }
     // }
-    await CartItem.deleteMany(order.cartItems);
+    // await CartItem.deleteMany(order.cartItems);
   } else {
-    await Order.deleteOne({ transaction_id: tran_id });
+    // await Order.deleteOne({ transaction_id: tran_id });
   }
-  await payment.save();
-  return res.status(200).send("IPN");
+  // await payment.save();
+  return res.status(200).send(cartItems);
 };
 module.exports.paymentSuccess = async (req, res) => {
   res.sendFile(path.join(__basedir + "/public/success.html"));
