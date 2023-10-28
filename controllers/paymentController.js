@@ -107,7 +107,8 @@ module.exports.ipn = async (req, res) => {
       { transaction_id: tran_id },
       { status: "Complete" }
     );
-    for (const item of order.cartItems) {
+    const cartItems = order.cartItems;
+    for (const item of cartItems) {
       const productId = item.product;
       const count = item.count;
       const product = await Product.findById(productId);
