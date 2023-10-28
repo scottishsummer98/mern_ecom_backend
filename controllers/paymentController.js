@@ -99,6 +99,11 @@ module.exports.initPayment = async (req, res) => {
   }
   return res.status(200).send(response);
 };
+// module.exports.paymentTest = async (req, res) => {
+//   const tran_id = "_rldcaau1698465570969";
+//   const myOrder = await Order.find({ transaction_id: tran_id });
+//   return res.status(200).send(myOrder[0].cartItems);
+// };
 module.exports.ipn = async (req, res) => {
   const payment = new Payment(req.body);
   const tran_id = payment["tran_id"];
@@ -107,11 +112,9 @@ module.exports.ipn = async (req, res) => {
       { transaction_id: tran_id },
       { status: "Complete" }
     );
-    const cartItems = await Order.find({ transaction_id: tran_id }).select(
-      "cartItems"
-    );
+    const myOrder = await Order.find({ transaction_id: tran_id });
 
-    for (const item of cartItems) {
+    for (const item of myOrder[0].cartItems) {
       const productId = item.product;
       const count = item.count;
       const product = await Product.findById(productId);
