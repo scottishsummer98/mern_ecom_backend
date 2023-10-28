@@ -107,17 +107,16 @@ module.exports.ipn = async (req, res) => {
       { transaction_id: tran_id },
       { status: "Complete" }
     );
-    const cartItems = order.cartItems;
-    for (const item of cartItems) {
-      const productId = item.product;
-      const count = item.count;
-      const product = await Product.findById(productId);
-      if (product) {
-        product.sold += count;
-        product.quantity -= count;
-        await product.save();
-      }
-    }
+    // for (const item of order.cartItems) {
+    //   const productId = item.product;
+    //   const count = item.count;
+    //   const product = await Product.findById(productId);
+    //   if (product) {
+    //     product.sold += count;
+    //     product.quantity -= count;
+    //     await product.save();
+    //   }
+    // }
     await CartItem.deleteMany(order.cartItems);
   } else {
     await Order.deleteOne({ transaction_id: tran_id });
