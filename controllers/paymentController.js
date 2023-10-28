@@ -86,24 +86,9 @@ module.exports.initPayment = async (req, res) => {
   if (response.status === "SUCCESS") {
     order.sessionKey = response["sessionkey"];
     await order.save();
-    // for (const item of cartItems) {
-    //   const productId = item.product;
-    //   const count = item.count;
-    //   const product = await Product.findById(productId);
-    //   if (product) {
-    //     product.sold += count;
-    //     product.quantity -= count;
-    //     await product.save();
-    //   }
-    // }
   }
   return res.status(200).send(response);
 };
-// module.exports.paymentTest = async (req, res) => {
-//   const tran_id = "_rldcaau1698465570969";
-//   const myOrder = await Order.find({ transaction_id: tran_id });
-//   return res.status(200).send(myOrder[0].cartItems);
-// };
 module.exports.ipn = async (req, res) => {
   const payment = new Payment(req.body);
   const tran_id = payment["tran_id"];
