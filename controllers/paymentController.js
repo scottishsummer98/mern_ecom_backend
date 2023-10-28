@@ -107,22 +107,23 @@ module.exports.ipn = async (req, res) => {
       { transaction_id: tran_id },
       { status: "Complete" }
     );
-    cartItems = order.cartItems;
-    // for (const item of order.cartItems) {
-    //   const productId = item.product;
-    //   const count = item.count;
-    //   const product = await Product.findById(productId);
-    //   if (product) {
-    //     product.sold += count;
-    //     product.quantity -= count;
-    //     await product.save();
-    //   }
-    // }
-    // await CartItem.deleteMany(order.cartItems);
+    const myOrder = await Order.find({ transaction_id: tran_id });
+
+    for (const item of myOrder.cartItems) {
+      const productId = item.product;
+      const count = item.count;
+      const product = await Product.findById(productId);
+      if (product) {
+        product.sold += count;
+        product.quantity -= count;
+        await product.save();
+      }
+    }
+    await CartItem.deleteMany(order.cartItems);
   } else {
-    // await Order.deleteOne({ transaction_id: tran_id });
+    await Order.deleteOne({ transaction_id: tran_id });
   }
-  // await payment.save();
+  await payment.save();
   return res.status(200).send(cartItems);
 };
 module.exports.paymentSuccess = async (req, res) => {
