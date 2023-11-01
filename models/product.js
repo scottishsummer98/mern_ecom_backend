@@ -1,30 +1,50 @@
 const { Schema, model } = require("mongoose");
 const Joi = require("joi");
 
-module.exports.Product = model(
-  "Product",
-  Schema(
-    {
-      name: String,
-      description: String,
-      price: Number,
-      quantity: Number,
-      sold: {
-        type: Number,
-        default: 0,
-      },
-      category: {
-        type: Schema.Types.ObjectId,
-        ref: "Category",
-        required: true,
-      },
-      photo: {
-        data: Buffer,
-        contentType: String,
-      },
+const ReviewSchema = Schema(
+  {
+    comment: String,
+    rating: {
+      type: Number,
+      default: 1,
+      min: 1,
+      max: 5,
     },
-    { timestamps: true }
-  )
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
+const ProductSchema = Schema(
+  {
+    name: String,
+    description: String,
+    price: Number,
+    quantity: Number,
+    sold: {
+      type: Number,
+      default: 0,
+    },
+    avg_rating: {
+      type: Number,
+      default: 0,
+    },
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+    },
+    photo: {
+      data: Buffer,
+      contentType: String,
+    },
+    reviews: [ReviewSchema],
+  },
+  { timestamps: true }
 );
 
 module.exports.validate = (product) => {
@@ -37,3 +57,31 @@ module.exports.validate = (product) => {
   });
   return schema.validate(product);
 };
+
+module.exports.Product = model("Product", ProductSchema);
+
+// module.exports.Product = model(
+//   "Product",
+//   Schema(
+//     {
+//       name: String,
+//       description: String,
+//       price: Number,
+//       quantity: Number,
+//       sold: {
+//         type: Number,
+//         default: 0,
+//       },
+//       category: {
+//         type: Schema.Types.ObjectId,
+//         ref: "Category",
+//         required: true,
+//       },
+//       photo: {
+//         data: Buffer,
+//         contentType: String,
+//       },
+//     },
+//     { timestamps: true }
+//   )
+// );

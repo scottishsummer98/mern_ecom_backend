@@ -42,7 +42,6 @@ module.exports.createProduct = async (req, res) => {
     }
   });
 };
-
 module.exports.getProducts = async (req, res) => {
   let order = req.query.order === "asc" ? 1 : -1; //?order=desc&sortBy=name&limit=10
   let sortBy = req.query.sortBy ? req.query.sortBy : "createdAt";
@@ -54,16 +53,22 @@ module.exports.getProducts = async (req, res) => {
     .populate("category", "name");
   return res.status(200).send(products);
 };
-
 module.exports.getProductById = async (req, res) => {
   const productId = req.params.id; //:id
   const product = await Product.findById(productId)
     .select({ photo: 0 })
-    .populate("category", "name");
+    .populate("category", "name")
+    .populate({
+      path: "reviews",
+      select: "user",
+      populate: {
+        path: "user",
+        select: "name",
+      },
+    });
   if (!product) return res.status(404).send("Not Found");
   return res.status(200).send(product);
 };
-
 module.exports.getPhotoById = async (req, res) => {
   const productId = req.params.id;
   const product = await Product.findById(productId).select({
@@ -73,7 +78,6 @@ module.exports.getPhotoById = async (req, res) => {
   res.set("Content-Type", product.photo.contentType);
   return res.status(200).send(product.photo.data);
 };
-
 module.exports.updateProductById = async (req, res) => {
   const productId = req.params.id;
   const product = await Product.findById(productId);
@@ -132,7 +136,6 @@ module.exports.updateProductById = async (req, res) => {
     }
   });
 };
-
 module.exports.filterProducts = async (req, res) => {
   let order = req.body.order === "desc" ? -1 : 1;
   let sortBy = req.body.sortBy ? req.body.sortBy : "price";
@@ -165,9 +168,108 @@ module.exports.filterProducts = async (req, res) => {
 
   return res.status(200).send(products);
 };
-
 module.exports.deleteProduct = async (req, res) => {
   const _id = req.params.id;
   await Product.deleteOne({ _id: _id });
   return res.status(200).send("Product Deleted!");
+};
+module.exports.createReview = async (req, res) => {
+  let { productId, comment, rating } = _.pick(req.body, [
+    "productId",
+    "comment",
+    "rating",
+  ]);
+  const product = await Product.findById(productId);
+
+  if (!product) {
+    return res.status(404).send({ message: "Product not found!" });
+  }
+  const newReview = {
+    user: req.user._id,
+    comment,
+    rating,
+  };
+  product.reviews.push(newReview);
+  await product.save();
+
+  const totalRatings = product.reviews.reduce(
+    (acc, review) => acc + review.rating,
+    0
+  );
+  product.avg_rating =
+    product.reviews.length === 0
+      ? 0
+      : Math.round(totalRatings / product.reviews.length);
+
+  await product.save();
+  return res.status(201).send({
+    message: "Review added successfully!",
+    data: _.pick(product, ["reviews"]),
+  });
+};
+module.exports.updateReview = async (req, res) => {
+  const { productId, comment, rating } = _.pick(req.body, [
+    "productId",
+    "comment",
+    "rating",
+  ]);
+
+  const product = await Product.findById(productId);
+  if (!product) {
+    return res.status(404).send({ message: "Product not found!" });
+  }
+
+  const reviewIndex = product.reviews.findIndex((review) =>
+    review._id.equals(req.params.id)
+  );
+
+  if (reviewIndex === -1) {
+    return res.status(404).send({ message: "Review not found" });
+  }
+
+  product.reviews[reviewIndex].comment = comment;
+  product.reviews[reviewIndex].rating = rating;
+
+  await product.save();
+
+  const totalRatings = product.reviews.reduce(
+    (acc, review) => acc + review.rating,
+    0
+  );
+  product.avg_rating =
+    product.reviews.length === 0
+      ? 0
+      : Math.round(totalRatings / product.reviews.length);
+
+  await product.save();
+
+  return res.status(200).send({
+    message: "Review updated successfully!",
+    data: _.pick(product, ["reviews"]),
+  });
+};
+module.exports.deleteReview = async (req, res) => {
+  let productId = req.query.productId;
+  const product = await Product.findById(productId);
+  const reviewIndex = product.reviews.findIndex((review) =>
+    review._id.equals(req.params.id)
+  );
+  product.reviews.splice(reviewIndex, 1);
+  await product.save();
+
+  const totalRatings = product.reviews.reduce(
+    (acc, review) => acc + review.rating,
+    0
+  );
+  product.avg_rating =
+    product.reviews.length === 0
+      ? 0
+      : Math.round(totalRatings / product.reviews.length);
+
+  await product.save();
+
+  return res.status(200).send({
+    message: "Review deleted successfully!",
+    data: _.pick(product, ["_id", "reviews"]),
+  });
 };
