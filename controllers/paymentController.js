@@ -89,7 +89,7 @@ module.exports.initPayment = async (req, res) => {
     transaction_id: tran_id,
     address: profile,
     coupon_applied: coupon ? "Y" : "N",
-    coupon: coupon ? coupon.code : "",
+    coupon: coupon ? coupon._id : null,
   });
 
   if (response.status === "SUCCESS") {

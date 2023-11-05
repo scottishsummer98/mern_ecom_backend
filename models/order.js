@@ -28,7 +28,10 @@ module.exports.Order = model(
         type: String,
         enum: ["N", "Y"],
       },
-      coupon: String,
+      coupon: {
+        type: Schema.Types.ObjectId,
+        ref: "Coupon",
+      },
       user: {
         type: Schema.Types.ObjectId,
         ref: "User",
