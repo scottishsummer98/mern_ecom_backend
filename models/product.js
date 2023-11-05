@@ -59,29 +59,3 @@ module.exports.validate = (product) => {
 };
 
 module.exports.Product = model("Product", ProductSchema);
-
-// module.exports.Product = model(
-//   "Product",
-//   Schema(
-//     {
-//       name: String,
-//       description: String,
-//       price: Number,
-//       quantity: Number,
-//       sold: {
-//         type: Number,
-//         default: 0,
-//       },
-//       category: {
-//         type: Schema.Types.ObjectId,
-//         ref: "Category",
-//         required: true,
-//       },
-//       photo: {
-//         data: Buffer,
-//         contentType: String,
-//       },
-//     },
-//     { timestamps: true }
-//   )
-// );

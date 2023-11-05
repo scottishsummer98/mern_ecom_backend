@@ -10,10 +10,7 @@ const {
 const admin = require("../middlewares/admin");
 const authorize = require("../middlewares/authorize");
 
-router.route("/").get(authorize, initPayment);
-
-// router.route("/paymentTest").get(paymentTest);
-
+router.route("/:cc").get(authorize, initPayment);
 router.route("/ipn").post(ipn);
 router.route("/success").post(paymentSuccess);
 router.route("/fail").post(paymentFail);

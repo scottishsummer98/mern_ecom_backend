@@ -2,6 +2,7 @@ const { CartItem } = require("../models/cartItem");
 const { Profile } = require("../models/profile");
 const { Order } = require("../models/order");
 const { Product } = require("../models/product");
+const { Coupon } = require("../models/coupon");
 const { Payment } = require("../models/payment");
 const PaymentSession = require("ssl-commerz-node").PaymentSession;
 
@@ -9,6 +10,11 @@ const path = require("path");
 
 module.exports.initPayment = async (req, res) => {
   const userId = req.user._id;
+  const coupon = await Coupon.findOne({ code: req.params.cc });
+  let coupon_amount = 0;
+  if (coupon) {
+    coupon_amount = coupon.amount;
+  }
   const cartItems = await CartItem.find({ user: userId });
   const profile = await Profile.findOne({ user: userId });
   const { address1, address2, city, state, postcode, country, phone } = profile;
@@ -36,7 +42,7 @@ module.exports.initPayment = async (req, res) => {
 
   // Set order details
   payment.setOrderInfo({
-    total_amount: total_amount, // Number field
+    total_amount: total_amount - coupon_amount, // Number field
     currency: "BDT", // Must be three character string
     tran_id: tran_id, // Unique Transaction id
     emi_option: 0, // 1 or 0
@@ -82,10 +88,17 @@ module.exports.initPayment = async (req, res) => {
     user: userId,
     transaction_id: tran_id,
     address: profile,
+    coupon_applied: coupon ? "Y" : "N",
+    coupon: coupon ? coupon.code : "",
   });
+
   if (response.status === "SUCCESS") {
     order.sessionKey = response["sessionkey"];
     await order.save();
+    if (coupon) {
+      coupon.limit = coupon.limit - 1;
+      await coupon.save();
+    }
   }
   return res.status(200).send(response);
 };

@@ -24,6 +24,11 @@ module.exports.Order = model(
         default: "Pending",
         enum: ["Pending", "Complete"],
       },
+      coupon_applied: {
+        type: String,
+        enum: ["N", "Y"],
+      },
+      coupon: String,
       user: {
         type: Schema.Types.ObjectId,
         ref: "User",
