@@ -105,48 +105,42 @@ module.exports.initPayment = async (req, res) => {
 module.exports.ipn = async (req, res) => {
   const payment = new Payment(req.body);
   const tran_id = payment["tran_id"];
-
   if (payment["status"] === "VALID") {
-    const validationUrl =
-      "https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php";
-    const val_id = payment["val_id"];
-    const store_id = process.env.SSLCOMMERZ_STORE_ID;
-    const store_passwd = process.env.SSLCOMMERZ_STORE_PASSWORD;
-    const format = "json";
-    const v = 1;
+    const order = await Order.updateOne(
+      { transaction_id: tran_id },
+      { status: "Complete" }
+    );
+    const myOrder = await Order.find({ transaction_id: tran_id });
 
-    const validationData = {
-      val_id,
-      store_id,
-      store_passwd,
-      format,
-      v,
-    };
-    const response = await axios.get(validationUrl, validationData);
-    console.log(response);
-    // const order = await Order.updateOne(
-    //   { transaction_id: tran_id },
-    //   { status: "Complete" }
-    // );
-    // const myOrder = await Order.find({ transaction_id: tran_id });
-
-    // for (const item of myOrder[0].cartItems) {
-    //   const productId = item.product;
-    //   const count = item.count;
-    //   const product = await Product.findById(productId);
-    //   if (product) {
-    //     product.sold += count;
-    //     product.quantity -= count;
-    //     await product.save();
-    //   }
-    // }
-    // await CartItem.deleteMany(order.cartItems);
+    for (const item of myOrder[0].cartItems) {
+      const productId = item.product;
+      const count = item.count;
+      const product = await Product.findById(productId);
+      if (product) {
+        product.sold += count;
+        product.quantity -= count;
+        await product.save();
+      }
+    }
+    await CartItem.deleteMany(order.cartItems);
+  } else {
+    await Order.deleteOne({ transaction_id: tran_id });
   }
-  // else {
-  //   await Order.deleteOne({ transaction_id: tran_id });
-  // }
-  // await payment.save();
-  // return res.status(200).send(response);
+  await payment.save();
+  return res.status(200).send(cartItems);
+};
+module.exports.validatessl = async (req, res) => {
+  // const val_id = "231105918101U8SgyhojhA7Erd";
+  // const store_id = process.env.SSLCOMMERZ_STORE_ID;
+  // const store_passwd = process.env.SSLCOMMERZ_STORE_PASSWORD;
+  // const response = await axios.get(
+  //   `https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php?val_id=${val_id}&store_id=${store_id}&store_passwd=${store_passwd}&format=json&v=1`
+  // );
+  // console.log(val_id);
+  // console.log(store_id);
+  // console.log(store_passwd);
+  // console.log(response);
+  return res.status(501).send("Hello");
 };
 module.exports.paymentSuccess = async (req, res) => {
   res.sendFile(path.join(__basedir + "/public/success.html"));
