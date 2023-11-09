@@ -24,6 +24,7 @@ module.exports.Order = model(
         default: "Pending",
         enum: ["Pending", "Complete"],
       },
+      sslStatus: String,
       coupon_applied: {
         type: String,
         enum: ["N", "Y"],

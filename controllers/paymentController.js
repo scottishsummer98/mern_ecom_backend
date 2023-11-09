@@ -105,10 +105,27 @@ module.exports.initPayment = async (req, res) => {
 module.exports.ipn = async (req, res) => {
   const payment = new Payment(req.body);
   const tran_id = payment["tran_id"];
+  const validationUrl =
+    "https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php";
+  const val_id = payment["val_id"];
+  const store_id = process.env.SSLCOMMERZ_STORE_ID;
+  const store_passwd = process.env.SSLCOMMERZ_STORE_PASSWORD;
+  const format = "json";
+  const v = 1;
+
+  const validationData = {
+    val_id,
+    store_id,
+    store_passwd,
+    format,
+    v,
+  };
+  const response = await axios.get(validationUrl, validationData);
   if (payment["status"] === "VALID") {
     const order = await Order.updateOne(
       { transaction_id: tran_id },
-      { status: "Complete" }
+      { status: "Complete" },
+      { sslStatus: response.status }
     );
     const myOrder = await Order.find({ transaction_id: tran_id });
 
@@ -129,6 +146,7 @@ module.exports.ipn = async (req, res) => {
   await payment.save();
   return res.status(200).send(cartItems);
 };
+
 module.exports.paymentSuccess = async (req, res) => {
   res.sendFile(path.join(__basedir + "/public/success.html"));
 };
