@@ -4,6 +4,7 @@ const { Order } = require("../models/order");
 const { Product } = require("../models/product");
 const { Coupon } = require("../models/coupon");
 const { Payment } = require("../models/payment");
+const fetch = require("node-fetch");
 const PaymentSession = require("ssl-commerz-node").PaymentSession;
 
 const path = require("path");
@@ -106,9 +107,13 @@ module.exports.ipn = async (req, res) => {
   const payment = new Payment(req.body);
   const tran_id = payment["tran_id"];
   if (payment["status"] === "VALID") {
+    const response = await fetch(
+      `https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php?val_id=${payment["val_id"]}&store_id=${process.env.SSLCOMMERZ_STORE_ID}&store_passwd=${process.env.SSLCOMMERZ_STORE_PASSWORD}&format=json&v=1`
+    );
+    const data = await response.json();
     const order = await Order.updateOne(
       { transaction_id: tran_id },
-      { status: "Complete" }
+      { status: "Complete", sslStatus: data.status }
     );
     const myOrder = await Order.find({ transaction_id: tran_id });
 
@@ -128,19 +133,6 @@ module.exports.ipn = async (req, res) => {
   }
   await payment.save();
   return res.status(200).send(cartItems);
-};
-module.exports.validatessl = async (req, res) => {
-  // const val_id = "231105918101U8SgyhojhA7Erd";
-  // const store_id = process.env.SSLCOMMERZ_STORE_ID;
-  // const store_passwd = process.env.SSLCOMMERZ_STORE_PASSWORD;
-  // const response = await axios.get(
-  //   `https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php?val_id=${val_id}&store_id=${store_id}&store_passwd=${store_passwd}&format=json&v=1`
-  // );
-  // console.log(val_id);
-  // console.log(store_id);
-  // console.log(store_passwd);
-  // console.log(response);
-  return res.status(501).send("Hello");
 };
 module.exports.paymentSuccess = async (req, res) => {
   res.sendFile(path.join(__basedir + "/public/success.html"));
