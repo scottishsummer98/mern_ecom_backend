@@ -5,6 +5,7 @@ const {
   paymentSuccess,
   paymentFail,
   paymentCancel,
+  paymentTest,
 } = require("../controllers/paymentController");
 const admin = require("../middlewares/admin");
 const authorize = require("../middlewares/authorize");

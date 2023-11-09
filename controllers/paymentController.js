@@ -121,11 +121,11 @@ module.exports.ipn = async (req, res) => {
     v,
   };
   const response = await axios.get(validationUrl, validationData);
+  console.log(response["status"]);
   if (payment["status"] === "VALID") {
     const order = await Order.updateOne(
       { transaction_id: tran_id },
-      { status: "Complete" },
-      { sslStatus: response.status }
+      { status: "Complete", sslStatus: response["status"] }
     );
     const myOrder = await Order.find({ transaction_id: tran_id });
 
@@ -146,7 +146,6 @@ module.exports.ipn = async (req, res) => {
   await payment.save();
   return res.status(200).send(cartItems);
 };
-
 module.exports.paymentSuccess = async (req, res) => {
   res.sendFile(path.join(__basedir + "/public/success.html"));
 };
