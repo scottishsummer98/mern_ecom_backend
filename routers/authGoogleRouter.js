@@ -2,6 +2,7 @@ const router = require("express").Router();
 const passport = require("passport");
 const { User } = require("../models/user");
 const _ = require("lodash");
+const cors = require("cors");
 
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const strategy = new GoogleStrategy(
@@ -9,7 +10,7 @@ const strategy = new GoogleStrategy(
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL:
-      "https://mern-ecom-backend-5xg2.onrender.com/auth/google/redirect",
+      "https://mern-ecom-backend-5xg2.onrender.com/api/auth/google/redirect",
   },
   async (accessToken, refreshToken, profile, cb) => {
     let user = await User.findOne({
@@ -40,7 +41,7 @@ const strategy = new GoogleStrategy(
   }
 );
 passport.use(strategy);
-
+router.use(cors());
 router
   .route("/")
   .get(passport.authenticate("google", { scope: ["profile", "email"] }));

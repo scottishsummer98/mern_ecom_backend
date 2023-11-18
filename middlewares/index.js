@@ -3,16 +3,10 @@ const cors = require("cors");
 const morgan = require("morgan");
 
 module.exports = (app) => {
+  app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(express.static("public"));
-
-  app.use(
-    cors({
-      origin: "https://mernecom.netlify.app",
-      methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    })
-  );
 
   if (process.env.NODE_ENV === "development") {
     app.use(morgan("dev"));
