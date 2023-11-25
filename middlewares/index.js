@@ -4,11 +4,10 @@ const morgan = require("morgan");
 
 module.exports = (app) => {
   app.use(
-    cors(
-      (corsOptions = {
-        origin: "https://mernecom.netlify.app",
-      })
-    )
+    cors({
+      origin: "https://mernecom.netlify.app",
+      credentials: true,
+    })
   );
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
