@@ -5,7 +5,7 @@ const morgan = require("morgan");
 module.exports = (app) => {
   app.use(
     cors({
-      origin: "https://mernecom.netlify.app",
+      origin: "*",
       credentials: true,
     })
   );
