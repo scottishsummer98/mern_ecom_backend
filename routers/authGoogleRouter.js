@@ -8,8 +8,7 @@ const strategy = new GoogleStrategy(
   {
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL:
-      "https://mern-ecom-backend-5xg2.onrender.com/api/auth/google/redirect",
+    callbackURL: "http://localhost:3001/api/auth/google/redirect",
   },
   async (accessToken, refreshToken, profile, cb) => {
     let user = await User.findOne({
@@ -43,7 +42,6 @@ passport.use(strategy);
 router.route("/").get(
   passport.authenticate("google", {
     scope: ["profile", "email"],
-    session: false,
   })
 );
 router
