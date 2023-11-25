@@ -3,12 +3,12 @@ const cors = require("cors");
 const morgan = require("morgan");
 
 module.exports = (app) => {
-  // app.use(
-  //   cors({
-  //     origin: "https://mernecom.netlify.app",
-  //     credentials: true,
-  //   })
-  // );
+  app.use(
+    cors({
+      origin: "https://mernecom.netlify.app",
+      credentials: true,
+    })
+  );
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(express.static("public"));

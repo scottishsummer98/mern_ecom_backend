@@ -40,9 +40,12 @@ const strategy = new GoogleStrategy(
   }
 );
 passport.use(strategy);
-router
-  .route("/")
-  .get(passport.authenticate("google", { scope: ["profile", "email"] }));
+router.route("/").get(
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    session: false,
+  })
+);
 router
   .route("/redirect")
   .get(passport.authenticate("google", { session: false }), (req, res) => {
