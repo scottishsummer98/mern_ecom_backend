@@ -2,7 +2,6 @@ const router = require("express").Router();
 const passport = require("passport");
 const { User } = require("../models/user");
 const _ = require("lodash");
-const cors = require("cors");
 
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const strategy = new GoogleStrategy(
@@ -41,7 +40,6 @@ const strategy = new GoogleStrategy(
   }
 );
 passport.use(strategy);
-router.use(cors());
 router
   .route("/")
   .get(passport.authenticate("google", { scope: ["profile", "email"] }));
