@@ -8,7 +8,8 @@ const googleStrategy = new GoogleStrategy(
   {
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:3001/api/auth/google/callback",
+    callbackURL:
+      "https://mern-ecom-backend-5xg2.onrender.com/api/auth/google/callback",
     proxy: true,
   },
   async (accessToken, refreshToken, profile, cb) => {
@@ -43,7 +44,8 @@ const facebookStrategy = new FacebookStrategy(
   {
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: "http://localhost:3001/api/auth/facebook/callback",
+    callbackURL:
+      "https://mern-ecom-backend-5xg2.onrender.com/api/auth/facebook/callback",
   },
   async (accessToken, refreshToken, profile, cb) => {
     let user = await User.findOne({
