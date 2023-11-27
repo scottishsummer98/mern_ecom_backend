@@ -19,7 +19,7 @@ router
   .route("/google/callback")
   .get(passport.authenticate("google", { session: false }), (req, res) => {
     res.redirect(
-      `${process.env.REACT_APP_FRONTEND_API_URL}auth?token=${req.user.token}&message=${req.user.message}`
+      `https://mernecom.netlify.app/auth?token=${req.user.token}&message=${req.user.message}`
     );
   });
 
@@ -33,7 +33,7 @@ router
   .route("/facebook/callback")
   .get(passport.authenticate("facebook"), (req, res) => {
     res.redirect(
-      `${process.env.REACT_APP_FRONTEND_API_URL}auth?token=${req.user.token}&message=${req.user.message}`
+      `https://mernecom.netlify.app/auth?token=${req.user.token}&message=${req.user.message}`
     );
   });
 module.exports = router;
