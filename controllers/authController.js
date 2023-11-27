@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const passport = require("passport");
 const _ = require("lodash");
 const { User, validate } = require("../models/user");
 
