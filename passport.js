@@ -44,11 +44,13 @@ const facebookStrategy = new FacebookStrategy(
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
     callbackURL: `${process.env.REACT_APP_BACK_END_API_URL}api/auth/facebook/callback`,
+    profileFields: ["id", "displayName", "email"],
   },
   async (accessToken, refreshToken, profile, cb) => {
+    console.log(profile);
     let user = await User.findOne({
       facebookId: profile.id,
-      email: profile.email,
+      email: profile._json.email,
     });
     if (user) {
       const token = user.generateJWT();
@@ -61,7 +63,7 @@ const facebookStrategy = new FacebookStrategy(
       user = new User({
         facebookId: profile.id,
         name: profile.displayName,
-        email: profile.email,
+        email: profile._json.email,
       });
       await user.save();
       const token = user.generateJWT();
