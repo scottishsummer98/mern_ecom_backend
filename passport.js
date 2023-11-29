@@ -13,7 +13,6 @@ const googleStrategy = new GoogleStrategy(
   },
   async (accessToken, refreshToken, profile, cb) => {
     let user = await User.findOne({
-      googleId: profile.id,
       email: profile._json.email,
     });
     if (user) {
@@ -49,7 +48,6 @@ const facebookStrategy = new FacebookStrategy(
   async (accessToken, refreshToken, profile, cb) => {
     console.log(profile);
     let user = await User.findOne({
-      facebookId: profile.id,
       email: profile._json.email,
     });
     if (user) {
