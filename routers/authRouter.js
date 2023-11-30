@@ -27,7 +27,7 @@ router
 router.route("/facebook").get(passport.authenticate("facebook"));
 router
   .route("/facebook/callback")
-  .get(passport.authenticate("facebook"), (req, res) => {
+  .get(passport.authenticate("facebook", { session: false }), (req, res) => {
     res.redirect(
       `${process.env.REACT_APP_FRONT_END_API_URL}auth?token=${req.user.token}&message=${req.user.message}`
     );
