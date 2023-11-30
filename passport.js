@@ -12,30 +12,41 @@ const googleStrategy = new GoogleStrategy(
     proxy: true,
   },
   async (accessToken, refreshToken, profile, cb) => {
-    let user = await User.findOne({
-      googleId: profile.id,
-      email: profile._json.email,
+    let existingUserByEmail = await User.findOne({
+      $or: [{ facebookId: { $exists: true } }, { email: profile._json.email }],
     });
-    if (user) {
-      const token = user.generateJWT();
+    if (existingUserByEmail) {
       const response = {
-        message: "Login Successful!",
-        token: token,
+        message: "User already exists!",
+        token: "undefined",
       };
       cb(null, response);
     } else {
-      user = new User({
+      let user = await User.findOne({
         googleId: profile.id,
-        name: profile._json.name,
         email: profile._json.email,
       });
-      await user.save();
-      const token = user.generateJWT();
-      const response = {
-        message: "Registration Successful!",
-        token: token,
-      };
-      cb(null, response);
+      if (user) {
+        const token = user.generateJWT();
+        const response = {
+          message: "Login Successful!",
+          token: token,
+        };
+        cb(null, response);
+      } else {
+        user = new User({
+          googleId: profile.id,
+          name: profile._json.name,
+          email: profile._json.email,
+        });
+        await user.save();
+        const token = user.generateJWT();
+        const response = {
+          message: "Registration Successful!",
+          token: token,
+        };
+        cb(null, response);
+      }
     }
   }
 );
@@ -47,30 +58,41 @@ const facebookStrategy = new FacebookStrategy(
     profileFields: ["id", "displayName", "email"],
   },
   async (accessToken, refreshToken, profile, cb) => {
-    let user = await User.findOne({
-      facebookId: profile.id,
-      email: profile._json.email,
+    let existingUserByEmail = await User.findOne({
+      $or: [{ googleId: { $exists: true } }, { email: profile._json.email }],
     });
-    if (user) {
-      const token = user.generateJWT();
+    if (existingUserByEmail) {
       const response = {
-        message: "Login Successful!",
-        token: token,
+        message: "User already exists!",
+        token: "undefined",
       };
       cb(null, response);
     } else {
-      user = new User({
+      let user = await User.findOne({
         facebookId: profile.id,
-        name: profile.displayName,
         email: profile._json.email,
       });
-      await user.save();
-      const token = user.generateJWT();
-      const response = {
-        message: "Registration Successful!",
-        token: token,
-      };
-      cb(null, response);
+      if (user) {
+        const token = user.generateJWT();
+        const response = {
+          message: "Login Successful!",
+          token: token,
+        };
+        cb(null, response);
+      } else {
+        user = new User({
+          facebookId: profile.id,
+          name: profile.displayName,
+          email: profile._json.email,
+        });
+        await user.save();
+        const token = user.generateJWT();
+        const response = {
+          message: "Registration Successful!",
+          token: token,
+        };
+        cb(null, response);
+      }
     }
   }
 );
